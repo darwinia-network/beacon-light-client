@@ -20,7 +20,7 @@ pragma solidity 0.8.17;
 import "./interfaces/ILightClient.sol";
 import "./StorageProof.sol";
 
-contract BeaconLightClientOracle {
+contract EthereumMessageRootOracle {
     address immutable LIGHT_CLIENT;
     address constant ORMP = 0x00000000001523057a05d6293C1e5171eE33eE0A;
     bytes32 constant SLOT = 0x0000000000000000000000000000000000000000000000000000000000000006;
