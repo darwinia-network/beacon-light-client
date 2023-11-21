@@ -4,7 +4,7 @@
 
 pragma solidity 0.8.17;
 
-import "./Memory.sol";
+import "../util/Memory.sol";
 
 /**
  * @custom:attribution https://github.com/hamdiallam/Solidity-RLP

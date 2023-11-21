@@ -17,7 +17,7 @@
 
 pragma solidity 0.8.17;
 
-import "./StorageProof.sol";
+import "./trie/StorageProof.sol";
 import "./BeaconLightClient.sol";
 
 contract EthereumMessageRootOracle is BeaconLightClient {

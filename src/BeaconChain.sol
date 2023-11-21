@@ -17,8 +17,8 @@
 
 pragma solidity 0.8.17;
 
-import "./MerkleProof.sol";
-import "./ScaleCodec.sol";
+import "./ssz/MerkleProof.sol";
+import "./util/ScaleCodec.sol";
 
 /// @title BeaconChain
 /// @notice Beacon chain specification

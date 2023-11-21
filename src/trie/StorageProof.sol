@@ -18,7 +18,7 @@
 pragma solidity 0.8.17;
 
 import "./State.sol";
-import "./RLPDecode.sol";
+import "../rlp/RLPDecode.sol";
 import "./SecureMerkleTrie.sol";
 
 /// @title StorageProof

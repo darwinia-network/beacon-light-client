@@ -69,7 +69,7 @@
 
 pragma solidity 0.8.17;
 
-import "./Bitfield.sol";
+import "./util/Bitfield.sol";
 import "./BeaconLightClientUpdate.sol";
 
 interface IBLS {
