@@ -21,10 +21,10 @@ import "./StorageProof.sol";
 import "./BeaconLightClient.sol";
 
 contract EthereumMessageRootOracle is BeaconLightClient {
+    bytes32 messageRoot = 0x27ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d757;
+
     address constant ORMP = 0x00000000001523057a05d6293C1e5171eE33eE0A;
     bytes32 constant SLOT = 0x0000000000000000000000000000000000000000000000000000000000000006;
-
-    bytes32 messageRoot = 0x27ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d757;
 
     struct Proof {
         bytes[] accountProof;
