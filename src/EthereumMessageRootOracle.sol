@@ -17,11 +17,10 @@
 
 pragma solidity 0.8.17;
 
-import "./interfaces/ILightClient.sol";
 import "./StorageProof.sol";
+import "./BeaconLightClient.sol";
 
-contract EthereumMessageRootOracle {
-    address immutable LIGHT_CLIENT;
+contract EthereumMessageRootOracle is BeaconLightClient {
     address constant ORMP = 0x00000000001523057a05d6293C1e5171eE33eE0A;
     bytes32 constant SLOT = 0x0000000000000000000000000000000000000000000000000000000000000006;
 
@@ -34,24 +33,35 @@ contract EthereumMessageRootOracle {
 
     event FinalizedMessageRootImported(uint256 indexed blockNumber, bytes32 indexed messageRoot);
 
-    constructor(address lightClient) {
-        LIGHT_CLIENT = lightClient;
-    }
+    constructor(
+        address _bls,
+        uint64 _slot,
+        uint64 _proposer_index,
+        bytes32 _parent_root,
+        bytes32 _state_root,
+        bytes32 _body_root,
+        bytes32 _current_sync_committee_hash,
+        bytes32 _genesis_validators_root
+    )
+        BeaconLightClient(
+            _bls,
+            _slot,
+            _proposer_index,
+            _parent_root,
+            _state_root,
+            _body_root,
+            _current_sync_committee_hash,
+            _genesis_validators_root
+        )
+    {}
 
-    function blockNumber() public view returns (uint256) {
-        return ILightClient(LIGHT_CLIENT).block_number();
-    }
-
-    function stateRoot() public view returns (bytes32) {
-        return ILightClient(LIGHT_CLIENT).merkle_root();
-    }
-
-    function importMessageRoot(bytes calldata encodedProof) public {
+    function import_message_root(bytes calldata encodedProof) public {
         Proof memory proof = abi.decode(encodedProof, (Proof));
-        bytes32 value = toBytes32(StorageProof.verify(stateRoot(), ORMP, proof.accountProof, SLOT, proof.storageProof));
+        bytes32 value =
+            toBytes32(StorageProof.verify(merkle_root(), ORMP, proof.accountProof, SLOT, proof.storageProof));
         require(value != messageRoot, "same");
         messageRoot = value;
-        emit FinalizedMessageRootImported(blockNumber(), value);
+        emit FinalizedMessageRootImported(block_number(), value);
     }
 
     function toBytes32(bytes memory source) internal pure returns (bytes32 result) {
