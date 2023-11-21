@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 //
-// Inspired: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts/contracts/libraries/rlp/Lib_RLPReader.sol
+// Inspired:
+// https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/libraries/rlp/RLPReader.sol
 
 pragma solidity 0.8.17;
 
@@ -62,7 +63,7 @@ library RLPDecode {
             ptr := add(_in, 32)
         }
 
-        return RLPItem({length: _in.length, ptr: ptr});
+        return RLPItem({ length: _in.length, ptr: ptr });
     }
 
     /**
@@ -89,7 +90,7 @@ library RLPDecode {
         uint256 offset = listOffset;
         while (offset < _in.length) {
             (uint256 itemOffset, uint256 itemLength,) = _decodeLength(
-                RLPItem({length: _in.length - offset, ptr: MemoryPointer.wrap(MemoryPointer.unwrap(_in.ptr) + offset)})
+                RLPItem({ length: _in.length - offset, ptr: MemoryPointer.wrap(MemoryPointer.unwrap(_in.ptr) + offset) })
             );
 
             // We don't need to check itemCount < out.length explicitly because Solidity already

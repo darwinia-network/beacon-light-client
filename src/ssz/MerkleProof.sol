@@ -23,7 +23,13 @@ import "../util/Math.sol";
 /// @notice Merkle proof specification
 contract MerkleProof is Math {
     /// @notice Check if ``leaf`` at ``index`` verifies against the Merkle ``root`` and ``branch``.
-    function is_valid_merkle_branch(bytes32 leaf, bytes32[] memory branch, uint64 depth, uint64 index, bytes32 root)
+    function is_valid_merkle_branch(
+        bytes32 leaf,
+        bytes32[] memory branch,
+        uint64 depth,
+        uint64 index,
+        bytes32 root
+    )
         internal
         pure
         returns (bool)

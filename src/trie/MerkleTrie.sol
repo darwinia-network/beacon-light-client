@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 //
-// Inspired: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts/contracts/libraries/trie/Lib_MerkleTrie.sol
+// Inspired:
+// https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts/contracts/libraries/trie/Lib_MerkleTrie.sol
 
 pragma solidity 0.8.17;
 
-import {Bytes} from "../util/Bytes.sol";
-import {Nibble} from "./Nibble.sol";
-import {RLPDecode} from "../rlp/RLPDecode.sol";
+import { Bytes } from "../util/Bytes.sol";
+import { Nibble } from "./Nibble.sol";
+import { RLPDecode } from "../rlp/RLPDecode.sol";
 
 /**
  * @title MerkleTrie
@@ -74,7 +75,12 @@ library MerkleTrie {
      *
      * @return Whether or not the proof is valid.
      */
-    function verifyInclusionProof(bytes memory _key, bytes memory _value, bytes[] memory _proof, bytes32 _root)
+    function verifyInclusionProof(
+        bytes memory _key,
+        bytes memory _value,
+        bytes[] memory _proof,
+        bytes32 _root
+    )
         internal
         pure
         returns (bool)
@@ -213,7 +219,7 @@ library MerkleTrie {
         uint256 length = _proof.length;
         TrieNode[] memory proof = new TrieNode[](length);
         for (uint256 i = 0; i < length;) {
-            proof[i] = TrieNode({encoded: _proof[i], decoded: RLPDecode.readList(_proof[i])});
+            proof[i] = TrieNode({ encoded: _proof[i], decoded: RLPDecode.readList(_proof[i]) });
             unchecked {
                 ++i;
             }

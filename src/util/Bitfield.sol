@@ -43,9 +43,15 @@ contract Bitfield {
         1000249
     ];
 
-    /// @notice Draws a random number, derives an index in the bitfield, and sets the bit if it is in the `prior` and not
+    /// @notice Draws a random number, derives an index in the bitfield, and sets the bit if it is in the `prior` and
+    /// not
     /// yet set. Repeats that `n` times.
-    function randomNBitsWithPriorCheck(uint256 seed, uint256 prior, uint256 n, uint256 length)
+    function randomNBitsWithPriorCheck(
+        uint256 seed,
+        uint256 prior,
+        uint256 n,
+        uint256 length
+    )
         internal
         view
         returns (uint256 bitfield)

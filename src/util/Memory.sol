@@ -83,7 +83,7 @@ library Memory {
         // https://github.com/ethereum/solidity/blob/34dd30d71b4da730488be72ff6af7083cf2a91f6/libsolidity/codegen/YulUtilFunctions.cpp#L102-L114
         assembly {
             let i := 0
-            for {} lt(i, len) { i := add(i, 32) } { mstore(add(dest, i), mload(add(src, i))) }
+            for { } lt(i, len) { i := add(i, 32) } { mstore(add(dest, i), mload(add(src, i))) }
 
             if gt(i, len) { mstore(add(dest, len), 0) }
         }

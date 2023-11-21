@@ -41,7 +41,11 @@ library StorageProof {
         bytes[] memory account_proof,
         bytes32 storage_key,
         bytes[] memory storage_proof
-    ) internal pure returns (bytes memory value) {
+    )
+        internal
+        pure
+        returns (bytes memory value)
+    {
         bytes memory account_hash = abi.encodePacked(account);
         bytes memory data = SecureMerkleTrie.get(account_hash, account_proof, root);
         State.EVMAccount memory acc = data.toEVMAccount();

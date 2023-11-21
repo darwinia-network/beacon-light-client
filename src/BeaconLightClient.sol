@@ -17,7 +17,8 @@
 //
 // Etherum beacon light client.
 // Current arthitecture diverges from spec's proposed updated splitting them into:
-// - Finalized header updates: To import a recent finalized header signed by a known sync committee by `import_finalized_header`.
+// - Finalized header updates: To import a recent finalized header signed by a known sync committee by
+// `import_finalized_header`.
 // - Sync period updates: To advance to the next committee by `import_next_sync_committee`.
 //
 // To stay synced to the current sync period it needs:
@@ -73,7 +74,11 @@ import "./util/Bitfield.sol";
 import "./BeaconLightClientUpdate.sol";
 
 interface IBLS {
-    function fast_aggregate_verify(bytes[] calldata pubkeys, bytes calldata message, bytes calldata signature)
+    function fast_aggregate_verify(
+        bytes[] calldata pubkeys,
+        bytes calldata message,
+        bytes calldata signature
+    )
         external
         pure
         returns (bool);
@@ -152,7 +157,9 @@ contract BeaconLightClient is BeaconLightClientUpdate, Bitfield {
     function import_next_sync_committee(
         FinalizedHeaderUpdate calldata header_update,
         SyncCommitteePeriodUpdate calldata sc_update
-    ) external {
+    )
+        external
+    {
         require(is_supermajority(header_update.sync_aggregate.sync_committee_bits), "!supermajor");
         require(
             header_update.signature_slot > header_update.attested_header.beacon.slot
@@ -239,7 +246,11 @@ contract BeaconLightClient is BeaconLightClientUpdate, Bitfield {
         SyncCommittee calldata sync_committee,
         bytes4 fork_version,
         BeaconBlockHeader calldata header
-    ) internal view returns (bool) {
+    )
+        internal
+        view
+        returns (bool)
+    {
         // Verify sync committee aggregate signature
         uint256 participants = sum(sync_aggregate.sync_committee_bits);
         bytes[] memory participant_pubkeys = new bytes[](participants);
@@ -302,7 +313,11 @@ contract BeaconLightClient is BeaconLightClientUpdate, Bitfield {
         BeaconBlockHeader calldata header,
         bytes32[] calldata finality_branch,
         bytes32 attested_header_state_root
-    ) internal pure returns (bool) {
+    )
+        internal
+        pure
+        returns (bool)
+    {
         require(finality_branch.length == FINALIZED_CHECKPOINT_ROOT_DEPTH, "!finality_branch");
         return is_valid_merkle_branch(
             hash_tree_root(header),
@@ -317,7 +332,11 @@ contract BeaconLightClient is BeaconLightClientUpdate, Bitfield {
         ExecutionPayloadHeader calldata header,
         bytes32[] calldata execution_branch,
         bytes32 beacon_header_body_root
-    ) internal pure returns (bool) {
+    )
+        internal
+        pure
+        returns (bool)
+    {
         require(execution_branch.length == EXECUTION_PAYLOAD_DEPTH, "!execution_branch");
         return is_valid_merkle_branch(
             hash_tree_root(header),
@@ -332,7 +351,11 @@ contract BeaconLightClient is BeaconLightClientUpdate, Bitfield {
         bytes32 next_sync_committee_root,
         bytes32[] calldata next_sync_committee_branch,
         bytes32 header_state_root
-    ) internal pure returns (bool) {
+    )
+        internal
+        pure
+        returns (bool)
+    {
         require(next_sync_committee_branch.length == NEXT_SYNC_COMMITTEE_DEPTH, "!next_sync_committee_branch");
         return is_valid_merkle_branch(
             next_sync_committee_root,

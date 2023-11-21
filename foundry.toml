@@ -22,3 +22,9 @@ arbitrum-goerli = { key = "${ETHERSCAN_ARBITRUM_KEY}" }
 arbitrum-sepolia = { key = "${ETHERSCAN_ARBITRUM_KEY}" }
 pangolin = { key = "${ETHERSCAN_DARWINIA_KEY}", url = "https://pangolin.api.subscan.io/api/scan/evm/contract/verifysource" }
 crab = { key = "${ETHERSCAN_DARWINIA_KEY}", url = "https://crab.api.subscan.io/api/scan/evm/contract/verifysource" }
+
+[fmt]
+line_length=120
+multiline_func_header='all'
+bracket_spacing=true
+wrap_comments=true

@@ -53,7 +53,7 @@ contract EthereumMessageRootOracle is BeaconLightClient {
             _current_sync_committee_hash,
             _genesis_validators_root
         )
-    {}
+    { }
 
     function import_message_root(bytes calldata encodedProof) public {
         Proof memory proof = abi.decode(encodedProof, (Proof));

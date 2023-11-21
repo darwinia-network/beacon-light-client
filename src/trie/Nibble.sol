@@ -1,43 +1,55 @@
-// This file is part of Darwinia.
-// Copyright (C) 2018-2022 Darwinia Network
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
 //
-// Darwinia is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Darwinia is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Darwinia. If not, see <https://www.gnu.org/licenses/>.
+// Inspired:
+// https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/libraries/Bytes.sol
 
 pragma solidity 0.8.17;
 
 library Nibble {
     /// @notice Converts a byte array into a nibble array by splitting each byte into two nibbles.
     ///         Resulting nibble array will be exactly twice as long as the input byte array.
-    //
     /// @param _bytes Input byte array to convert.
-    //
     /// @return Resulting nibble array.
     function toNibbles(bytes memory _bytes) internal pure returns (bytes memory) {
-        uint256 bytesLength = _bytes.length;
-        bytes memory nibbles = new bytes(bytesLength * 2);
-        bytes1 b;
+        bytes memory _nibbles;
+        assembly {
+            // Grab a free memory offset for the new array
+            _nibbles := mload(0x40)
 
-        for (uint256 i = 0; i < bytesLength;) {
-            b = _bytes[i];
-            nibbles[i * 2] = b >> 4;
-            nibbles[i * 2 + 1] = b & 0x0f;
-            unchecked {
-                ++i;
+            // Load the length of the passed bytes array from memory
+            let bytesLength := mload(_bytes)
+
+            // Calculate the length of the new nibble array
+            // This is the length of the input array times 2
+            let nibblesLength := shl(0x01, bytesLength)
+
+            // Update the free memory pointer to allocate memory for the new array.
+            // To do this, we add the length of the new array + 32 bytes for the array length
+            // rounded up to the nearest 32 byte boundary to the current free memory pointer.
+            mstore(0x40, add(_nibbles, and(not(0x1F), add(nibblesLength, 0x3F))))
+
+            // Store the length of the new array in memory
+            mstore(_nibbles, nibblesLength)
+
+            // Store the memory offset of the _bytes array's contents on the stack
+            let bytesStart := add(_bytes, 0x20)
+
+            // Store the memory offset of the nibbles array's contents on the stack
+            let nibblesStart := add(_nibbles, 0x20)
+
+            // Loop through each byte in the input array
+            for { let i := 0x00 } lt(i, bytesLength) { i := add(i, 0x01) } {
+                // Get the starting offset of the next 2 bytes in the nibbles array
+                let offset := add(nibblesStart, shl(0x01, i))
+                // Load the byte at the current index within the `_bytes` array
+                let b := byte(0x00, mload(add(bytesStart, i)))
+
+                // Pull out the first nibble and store it in the new array
+                mstore8(offset, shr(0x04, b))
+                // Pull out the second nibble and store it in the new array
+                mstore8(add(offset, 0x01), and(b, 0x0F))
             }
         }
-
-        return nibbles;
+        return _nibbles;
     }
 }
