@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
 import "./Fp.sol";
 
@@ -27,6 +27,10 @@ library BLS12FP2 {
     /// @return Result of equal check.
     function eq(Bls12Fp2 memory x, Bls12Fp2 memory y) internal pure returns (bool) {
         return x.c0.eq(y.c0) && x.c1.eq(y.c1);
+    }
+
+    function is_zero(Bls12Fp2 memory x) internal pure returns (bool) {
+        return x.c0.is_zero() && x.c1.is_zero();
     }
 
     /// @dev Hash an arbitrary `msg` to `2` elements from field `Fp2`.

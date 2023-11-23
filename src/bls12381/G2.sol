@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
 import "./Fp2.sol";
+import "../util/Bytes.sol";
 
 /// @dev BLS12-381 G2 of affine coordinates in short Weierstrass.
 /// @param x X over the quadratic extension field.
@@ -13,6 +14,8 @@ struct Bls12G2 {
 
 /// @title BLS12G2Affine
 library BLS12G2Affine {
+    using Bytes for bytes;
+    using BLS12FP for Bls12Fp;
     using BLS12FP2 for bytes;
     using BLS12FP2 for Bls12Fp2;
 
@@ -21,12 +24,24 @@ library BLS12G2Affine {
     /// @dev BLS12_381_MAP_FP2_TO_G2 precompile address.
     uint256 private constant MAP_FP2_TO_G2 = 0x14;
 
+    bytes1 private constant COMPRESION_FLAG = bytes1(0x80);
+    bytes1 private constant INFINITY_FLAG = bytes1(0x40);
+    bytes1 private constant Y_FLAG = bytes1(0x20);
+
     /// @dev Returns `true` if `x` is equal to `y`.
     /// @param a Bls12G2.
     /// @param b Bls12G2.
     /// @return Result of equal check.
     function eq(Bls12G2 memory a, Bls12G2 memory b) internal pure returns (bool) {
         return a.x.eq(b.x) && a.y.eq(b.y);
+    }
+
+    function is_zero(Bls12G2 memory p) internal pure returns (bool) {
+        return p.x.is_zero() && p.y.is_zero();
+    }
+
+    function is_infinity(Bls12G2 memory p) internal pure returns (bool) {
+        return is_zero(p);
     }
 
     /// @dev Produce a hash of the message. This uses the IETF hash to curve's specification
@@ -105,6 +120,33 @@ library BLS12G2Affine {
         return Bls12G2(
             Bls12Fp2(Bls12Fp(x[0], x[1]), Bls12Fp(x[2], x[3])), Bls12Fp2(Bls12Fp(x[4], x[5]), Bls12Fp(x[6], x[7]))
         );
+    }
+
+    // Take a 192 byte array and convert to G2 point (x, y)
+    function deserialize(bytes memory g2) internal pure returns (Bls12G2 memory) {
+        require(g2.length == 192, "!g2");
+        bytes1 byt = g2[0];
+        require(byt & COMPRESION_FLAG == 0, "compressed");
+        require(byt & INFINITY_FLAG == 0, "infinity");
+        require(byt & Y_FLAG == 0, "y_flag");
+
+        g2[0] = byt & 0x1f;
+
+        // Convert from array to FP2
+        Bls12Fp memory x_imaginary = Bls12Fp(g2.slice_to_uint(0, 16), g2.slice_to_uint(16, 48));
+        Bls12Fp memory x_real = Bls12Fp(g2.slice_to_uint(48, 64), g2.slice_to_uint(64, 96));
+        Bls12Fp memory y_imaginary = Bls12Fp(g2.slice_to_uint(96, 112), g2.slice_to_uint(112, 144));
+        Bls12Fp memory y_real = Bls12Fp(g2.slice_to_uint(144, 160), g2.slice_to_uint(160, 192));
+
+        // Require elements less than field modulus
+        require(x_imaginary.is_valid() && x_real.is_valid() && y_imaginary.is_valid() && y_real.is_valid(), "!pnt");
+
+        Bls12Fp2 memory x = Bls12Fp2(x_real, x_imaginary);
+        Bls12Fp2 memory y = Bls12Fp2(y_real, y_imaginary);
+
+        Bls12G2 memory p = Bls12G2(x, y);
+        require(!is_infinity(p), "infinity");
+        return p;
     }
 
     /// @dev Debug Bls12G2 in bytes.

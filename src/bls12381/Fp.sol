@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
 import "../util/Math.sol";
 import "../util/ScaleCodec.sol";
@@ -39,6 +39,10 @@ library BLS12FP {
     /// @return Result of zero check.
     function is_zero(Bls12Fp memory self) internal pure returns (bool) {
         return eq(self, zero());
+    }
+
+    function is_valid(Bls12Fp memory self) internal pure returns (bool) {
+        return gt(q(), self);
     }
 
     /// @dev Returns `true` if `x` is equal to `y`.

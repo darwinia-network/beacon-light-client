@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
 import "./G1.sol";
 import "./G2.sol";
@@ -8,30 +8,6 @@ import "./G2.sol";
 library BLS12Pairing {
     /// @dev BLS12_377_PAIRING precompile address.
     uint256 private constant BLS12_PAIRING = 0x12;
-
-    /// @dev Checks that a signature is valid for the octet string message under the public key PK
-    /// See <https://tools.ietf.org/html/draft-irtf-cfrg-bls-signature-04#section-2.8>
-    /// @param public_key Public key in BLS12-381 G1.
-    /// @param signature Signature in BLS12-381 G2.
-    /// @param message An octet string.
-    /// @return Result, either VALID or INVALID.
-    function verify(
-        Bls12G1 memory public_key,
-        Bls12G2 memory signature,
-        Bls12G2 memory message
-    )
-        internal
-        view
-        returns (bool)
-    {
-        Bls12G1[] memory a = new Bls12G1[](2);
-        a[0] = BLS12G1Affine.neg_generator();
-        a[1] = public_key;
-        Bls12G2[] memory b = new Bls12G2[](2);
-        b[0] = signature;
-        b[1] = message;
-        return pairing(a, b);
-    }
 
     /// @dev Computes a "product" of pairings.
     /// @param a List of Bls12G1.

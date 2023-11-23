@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
 import "./Fp.sol";
+import "../util/Bytes.sol";
 
 /// @dev BLS12-381 G1 of affine coordinates in short Weierstrass.
 /// @param x X over the base field.
@@ -13,10 +14,15 @@ struct Bls12G1 {
 
 /// @title BLS12G1Affine
 library BLS12G1Affine {
+    using Bytes for bytes;
     using BLS12FP for Bls12Fp;
 
     /// @dev BLS12_377_G1ADD precompile address.
     uint256 private constant G1_ADD = 0x0c;
+
+    bytes1 private constant COMPRESION_FLAG = bytes1(0x80);
+    bytes1 private constant INFINITY_FLAG = bytes1(0x40);
+    bytes1 private constant Y_FLAG = bytes1(0x20);
 
     /// @dev Negative G1 generator
     /// @return Negative G1 generator
@@ -89,5 +95,27 @@ library BLS12G1Affine {
     /// @return Bls12G1.
     function from(uint256[4] memory x) internal pure returns (Bls12G1 memory) {
         return Bls12G1(Bls12Fp(x[0], x[1]), Bls12Fp(x[2], x[3]));
+    }
+
+    // Take a 96 byte array and convert to a G1 point (x, y)
+    function deserialize(bytes memory g1) internal pure returns (Bls12G1 memory) {
+        require(g1.length == 96, "!g1");
+        bytes1 byt = g1[0];
+        require(byt & COMPRESION_FLAG == 0, "compressed");
+        require(byt & INFINITY_FLAG == 0, "infinity");
+        require(byt & Y_FLAG == 0, "y_flag");
+
+        // Zero flags
+        g1[0] = byt & 0x1f;
+        Bls12Fp memory x = Bls12Fp(g1.slice_to_uint(0, 16), g1.slice_to_uint(16, 48));
+        Bls12Fp memory y = Bls12Fp(g1.slice_to_uint(48, 64), g1.slice_to_uint(64, 96));
+
+        // Require elements less than field modulus
+        require(x.is_valid() && y.is_valid(), "!pnt");
+
+        // Convert to G1
+        Bls12G1 memory p = Bls12G1(x, y);
+        require(!is_infinity(p), "infinity");
+        return p;
     }
 }

@@ -34,7 +34,6 @@ contract EthereumMessageRootOracle is BeaconLightClient {
     event FinalizedMessageRootImported(uint256 indexed blockNumber, bytes32 indexed messageRoot);
 
     constructor(
-        address _bls,
         uint64 _slot,
         uint64 _proposer_index,
         bytes32 _parent_root,
@@ -44,7 +43,6 @@ contract EthereumMessageRootOracle is BeaconLightClient {
         bytes32 _genesis_validators_root
     )
         BeaconLightClient(
-            _bls,
             _slot,
             _proposer_index,
             _parent_root,
