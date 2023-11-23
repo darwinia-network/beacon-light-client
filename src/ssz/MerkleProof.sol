@@ -21,7 +21,7 @@ import "../util/Math.sol";
 
 /// @title MerkleProof
 /// @notice Merkle proof specification
-contract MerkleProof is Math {
+contract MerkleProof {
     /// @notice Check if ``leaf`` at ``index`` verifies against the Merkle ``root`` and ``branch``.
     function is_valid_merkle_branch(
         bytes32 leaf,
@@ -53,7 +53,7 @@ contract MerkleProof is Math {
         if (len == 0) return bytes32(0);
         else if (len == 1) return hash(abi.encodePacked(leaves[0]));
         else if (len == 2) return hash_node(leaves[0], leaves[1]);
-        uint256 bottom_length = get_power_of_two_ceil(len);
+        uint256 bottom_length = Math.get_power_of_two_ceil(len);
         bytes32[] memory o = new bytes32[](bottom_length * 2);
         unchecked {
             for (uint256 i = 0; i < len; ++i) {
