@@ -3,6 +3,8 @@
 // Inspired:
 // https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/libraries/trie/SecureMerkleTrie.sol
 
+pragma solidity 0.8.17;
+
 import { MerkleTrie } from "./MerkleTrie.sol";
 
 /// @title SecureMerkleTrie
