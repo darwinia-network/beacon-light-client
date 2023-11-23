@@ -15,7 +15,11 @@ library BLS12Pairing {
     /// @param signature Signature in BLS12-381 G2.
     /// @param message An octet string.
     /// @return Result, either VALID or INVALID.
-    function verify(Bls12G1 memory public_key, Bls12G2 memory signature, Bls12G2 memory message)
+    function verify(
+        Bls12G1 memory public_key,
+        Bls12G2 memory signature,
+        Bls12G2 memory message
+    )
         internal
         view
         returns (bool)

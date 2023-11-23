@@ -19,7 +19,8 @@ library BLS12FP {
     /// @dev MOD_EXP precompile address.
     uint256 private constant MOD_EXP = 0x05;
 
-    /// @dev Returns base field: q = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
+    /// @dev Returns base field: q =
+    /// 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
     /// @return Base field.
     function q() internal pure returns (Bls12Fp memory) {
         return Bls12Fp(
