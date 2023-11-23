@@ -113,10 +113,14 @@ contract BeaconLightClient is BeaconLightClientUpdate, Bitfield {
         bytes32 _parent_root,
         bytes32 _state_root,
         bytes32 _body_root,
+        uint256 _block_number,
+        bytes32 _merkle_root,
         bytes32 _current_sync_committee_hash,
         bytes32 _genesis_validators_root
     ) {
         finalized_header = BeaconBlockHeader(_slot, _proposer_index, _parent_root, _state_root, _body_root);
+        finalized_execution_payload_header_block_number = _block_number;
+        finalized_execution_payload_header_state_root = _merkle_root;
         sync_committee_roots[compute_sync_committee_period(_slot)] = _current_sync_committee_hash;
         GENESIS_VALIDATORS_ROOT = _genesis_validators_root;
     }

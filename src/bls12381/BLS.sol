@@ -16,7 +16,7 @@ library BLS {
         bytes memory message,
         bytes memory signature
     )
-        internal
+        public
         view
         returns (bool)
     {
