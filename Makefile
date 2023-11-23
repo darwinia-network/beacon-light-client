@@ -3,11 +3,12 @@
 
 -include .env
 
-all    :; @forge build
+all    :; @forge build --force
 fmt    :; @forge fmt
 clean  :; @forge clean
 test   :; @forge test
-deploy :; @forge script script/Deploy.s.sol:Deploy --chain ${chain-id} --broadcast --verify
+# deploy :; @forge script script/Deploy.s.sol:Deploy --chain ${chain-id} --broadcast --verify
+deploy :; @forge script script/Deploy.s.sol:Deploy --broadcast --rpc-url http://192.168.132.159:9944
 
 salt   :; @create3 -s 000000000000
 sync   :; @git submodule update --recursive
