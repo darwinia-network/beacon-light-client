@@ -33,6 +33,7 @@ library BLS {
             bytes memory g1 = keys[i];
             agg_g1 = agg_g1.add(BLS12G1Affine.deserialize(g1));
         }
+        require(!agg_g1.is_infinity(), "infinity");
         return agg_g1;
     }
 

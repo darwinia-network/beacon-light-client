@@ -20,10 +20,6 @@ library BLS12G1Affine {
     /// @dev BLS12_377_G1ADD precompile address.
     uint256 private constant G1_ADD = 0x0c;
 
-    bytes1 private constant COMPRESION_FLAG = bytes1(0x80);
-    bytes1 private constant INFINITY_FLAG = bytes1(0x40);
-    bytes1 private constant Y_FLAG = bytes1(0x20);
-
     /// @dev Negative G1 generator
     /// @return Negative G1 generator
     function neg_generator() internal pure returns (Bls12G1 memory) {
@@ -98,20 +94,33 @@ library BLS12G1Affine {
     }
 
     // Take a 96 byte array and convert to a G1 point (x, y)
-    function deserialize(bytes memory g1) internal pure returns (Bls12G1 memory) {
-        require(g1.length == 96, "!g1");
+    function deserialize(bytes memory g1) internal view returns (Bls12G1 memory) {
+        require(g1.length == 48, "!g1");
         bytes1 byt = g1[0];
-        require(byt & COMPRESION_FLAG == 0, "compressed");
-        require(byt & INFINITY_FLAG == 0, "infinity");
-        require(byt & Y_FLAG == 0, "y_flag");
+        bool c_flag = (byt >> 7) & 0x01 == 0x01;
+        bool b_flag = (byt >> 6) & 0x01 == 0x01;
+        bool a_flag = (byt >> 5) & 0x01 == 0x01;
+        if (a_flag && (!c_flag || b_flag)) {
+            revert("!flag");
+        }
+        require(c_flag, "uncompressed");
 
         // Zero flags
         g1[0] = byt & 0x1f;
         Bls12Fp memory x = Bls12Fp(g1.slice_to_uint(0, 16), g1.slice_to_uint(16, 48));
-        Bls12Fp memory y = Bls12Fp(g1.slice_to_uint(48, 64), g1.slice_to_uint(64, 96));
+        if (b_flag) {
+            require(x.is_zero(), "!zero");
+            return zero();
+        }
+
+        Bls12Fp memory y = x.find_y();
 
         // Require elements less than field modulus
-        require(x.is_valid() && y.is_valid(), "!pnt");
+        require(x.is_valid() && y.is_valid(), "!fp");
+
+        if (y.add(y).gt(BLS12FP.q()) != a_flag) {
+            y = BLS12FP.q().sub(y);
+        }
 
         // Convert to G1
         Bls12G1 memory p = Bls12G1(x, y);

@@ -28,6 +28,17 @@ library BLS12FP {
         );
     }
 
+    function b() internal pure returns (Bls12Fp memory) {
+        return Bls12Fp(0, 4);
+    }
+
+    /// @dev (q+1)/4
+    function qr() internal pure returns (Bls12Fp memory) {
+        return Bls12Fp(
+            0x680447a8e5ff9a692c6e9ed90d2eb35, 0xd91dd2e13ce144afd9cc34a83dac3d8907aaffffac54ffffee7fbfffffffeaab
+        );
+    }
+
     /// @dev Returns the additive identity element of Bls12Fp.
     /// @return Bls12Fp(0, 0)
     function zero() internal pure returns (Bls12Fp memory) {
@@ -43,6 +54,13 @@ library BLS12FP {
 
     function is_valid(Bls12Fp memory self) internal pure returns (bool) {
         return gt(q(), self);
+    }
+
+    /// @dev Returns `true` if `self` is equal or larger than r.
+    /// @param self Bls12Fp.
+    /// @return Result of check.
+    function is_geq_modulus(Bls12Fp memory self) internal pure returns (bool) {
+        return (eq(self, q()) || gt(self, q()));
     }
 
     /// @dev Returns `true` if `x` is equal to `y`.
@@ -80,6 +98,22 @@ library BLS12FP {
             uint8 carry = 0;
             (carry, z.b) = x.b.adc(y.b, carry);
             (, z.a) = x.a.adc(y.a, carry);
+        }
+    }
+
+    /// @dev Returns the result of `(x + y) % p`.
+    /// @param x Bw6Fp.
+    /// @param y Bw6Fp.
+    /// @return z `(x + y) % p`.
+    function add(Bls12Fp memory x, Bls12Fp memory y) internal pure returns (Bls12Fp memory z) {
+        z = add_nomod(x, y);
+        z = subtract_modulus_to_norm(z);
+    }
+
+    function subtract_modulus_to_norm(Bls12Fp memory self) internal pure returns (Bls12Fp memory z) {
+        z = self;
+        if (is_geq_modulus(self)) {
+            z = sub(self, q());
         }
     }
 
@@ -128,5 +162,82 @@ library BLS12FP {
             }
         }
         return Bls12Fp(output[0], output[1]);
+    }
+
+    /// @dev base^base % modulus
+    /// @param base Bls12Fp.
+    /// @param exp Bls12Fp.
+    /// @param modulus Bls12Fp.
+    /// @return Result of mod_exp.
+    function mod_exp(
+        Bls12Fp memory base,
+        Bls12Fp memory exp,
+        Bls12Fp memory modulus
+    )
+        internal
+        view
+        returns (Bls12Fp memory)
+    {
+        uint256[9] memory input;
+        input[0] = 0x40;
+        input[1] = 0x40;
+        input[2] = 0x40;
+        input[3] = base.a;
+        input[4] = base.b;
+        input[5] = exp.a;
+        input[6] = exp.b;
+        input[7] = modulus.a;
+        input[8] = modulus.b;
+        uint256[2] memory output;
+
+        assembly ("memory-safe") {
+            if iszero(staticcall(gas(), MOD_EXP, input, 288, output, 64)) {
+                let p := mload(0x40)
+                returndatacopy(p, 0, returndatasize())
+                revert(p, returndatasize())
+            }
+        }
+
+        return Bls12Fp(output[0], output[1]);
+    }
+
+    /// @dev base^base % modulus
+    /// @param base Bls12Fp.
+    /// @param exp uint256.
+    /// @param modulus Bls12Fp.
+    /// @return Result of mod_exp.
+    function mod_exp(Bls12Fp memory base, uint256 exp, Bls12Fp memory modulus) internal view returns (Bls12Fp memory) {
+        uint256[8] memory input;
+        input[0] = 0x40;
+        input[1] = 0x40;
+        input[2] = 0x40;
+        input[3] = base.a;
+        input[4] = base.b;
+        input[5] = exp;
+        input[6] = modulus.a;
+        input[7] = modulus.b;
+        uint256[2] memory output;
+
+        assembly ("memory-safe") {
+            if iszero(staticcall(gas(), MOD_EXP, input, 256, output, 64)) {
+                let p := mload(0x40)
+                returndatacopy(p, 0, returndatasize())
+                revert(p, returndatasize())
+            }
+        }
+
+        return Bls12Fp(output[0], output[1]);
+    }
+
+    // using quadratic residue
+    function find_y(Bls12Fp memory x) internal view returns (Bls12Fp memory) {
+        Bls12Fp memory y_square = add(mod_exp(x, 3, q()), b());
+        Bls12Fp memory y = mod_exp(y_square, qr(), q());
+        return y;
+    }
+
+    // pow(y, 2, q) == (x**3 + b.n) % q:
+    function is_on_curve(Bls12Fp memory x, Bls12Fp memory y) internal view returns (bool) {
+        return eq(mod_exp(y, 2, q()), add(mod_exp(x, 3, q()), b()));
     }
 }
