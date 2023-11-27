@@ -159,4 +159,28 @@ library BLS12G2Affine {
         require(!is_infinity(p), "infinity");
         return p;
     }
+
+    // Take a G2 point (x, y) and compress it to a 96 byte array as the x-coordinate.
+    function serialize(Bls12G2 memory g2) internal pure returns (bytes memory r) {
+        if (is_infinity(g2)) {
+            r = new bytes(96);
+            r[0] = bytes1(0xc0);
+        } else {
+            // Convert x-coordinate to bytes
+            r = g2.x.serialize();
+
+            // Record the leftmost bit of y_im to the a_flag1
+            // If y_im happens to be zero, then use the bit of y_re
+            // y_flag = (y_im * 2) // q if y_im > 0 else (y_re * 2) // q
+            Bls12Fp memory q = BLS12FP.q();
+            Bls12Fp memory y_re = g2.y.c0;
+            Bls12Fp memory y_im = g2.y.c1;
+
+            bool y_flag = y_im.is_zero() ? y_re.add(y_re).gt(q) : y_im.add(y_im).gt(q);
+            if (y_flag) {
+                r[0] = r[0] | Y_FLAG;
+            }
+            r[0] = r[0] | COMPRESION_FLAG;
+        }
+    }
 }
