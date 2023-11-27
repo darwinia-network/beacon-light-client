@@ -133,12 +133,6 @@ library BLS12FP {
         }
     }
 
-    /// @dev Debug Bls12Fp in bytes. / @param self Bls12Fp.
-    /// @return Uncompressed serialized bytes of Bls12Fp.
-    function debug(Bls12Fp memory self) internal pure returns (bytes memory) {
-        return abi.encodePacked(self.a, self.b);
-    }
-
     /// @dev Normalize Bls12Fp.
     /// @param fp Bls12Fp.
     /// @return `fp % p`.
@@ -162,5 +156,9 @@ library BLS12FP {
             }
         }
         return Bls12Fp(output[0], output[1]);
+    }
+
+    function serialize(Bls12Fp memory x) internal pure returns (bytes memory) {
+        return abi.encodePacked(uint128(x.a), x.b);
     }
 }

@@ -90,10 +90,8 @@ library BLS12FP2 {
         return Bls12Fp2(fp2.c0.norm(), fp2.c1.norm());
     }
 
-    /// @dev Debug Bls12Fp2 in bytes.
-    /// @param fp2 Bls12Fp2.
-    /// @return Uncompressed serialized bytes of Bls12Fp2.
-    function debug(Bls12Fp2 memory fp2) internal pure returns (bytes memory) {
-        return abi.encodePacked(fp2.c0.debug(), fp2.c1.debug());
+    // Note: Zcash uses (x_im, x_re)
+    function serialize(Bls12Fp2 memory x) internal pure returns (bytes memory) {
+        return abi.encodePacked(x.c1.serialize(), x.c0.serialize());
     }
 }

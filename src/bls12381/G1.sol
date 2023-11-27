@@ -20,6 +20,10 @@ library BLS12G1Affine {
     /// @dev BLS12_377_G1ADD precompile address.
     uint256 private constant G1_ADD = 0x0c;
 
+    bytes1 private constant COMPRESION_FLAG = bytes1(0x80);
+    bytes1 private constant INFINITY_FLAG = bytes1(0x40);
+    bytes1 private constant Y_FLAG = bytes1(0x20);
+
     /// @dev Negative G1 generator
     /// @return Negative G1 generator
     function neg_generator() internal pure returns (Bls12G1 memory) {
@@ -121,5 +125,22 @@ library BLS12G1Affine {
         Bls12G1 memory p = Bls12G1(x, y);
         require(!is_infinity(p), "infinity");
         return p;
+    }
+
+    // Take a G1 point (x, y) and compress it to a 48 byte array.
+    function serialize(Bls12G1 memory g1) internal pure returns (bytes memory r) {
+        if (is_infinity(g1)) {
+            r = new bytes(48);
+            r[0] = bytes1(0xc0);
+        } else {
+            // Record y's leftmost bit to the a_flag
+            // y_flag = (g1.y.n * 2) // q
+            bool y_flag = g1.y.add(g1.y).gt(BLS12FP.q());
+            r = g1.x.serialize();
+            if (y_flag) {
+                r[0] = r[0] | Y_FLAG;
+            }
+            r[0] = r[0] | COMPRESION_FLAG;
+        }
     }
 }

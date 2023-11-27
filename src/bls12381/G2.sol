@@ -159,11 +159,4 @@ library BLS12G2Affine {
         require(!is_infinity(p), "infinity");
         return p;
     }
-
-    /// @dev Debug Bls12G2 in bytes.
-    /// @param p Bls12G2.
-    /// @return Uncompressed serialized bytes of Bls12G2.
-    function debug(Bls12G2 memory p) internal pure returns (bytes memory) {
-        return abi.encodePacked(p.x.debug(), p.y.debug());
-    }
 }
