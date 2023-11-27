@@ -5,7 +5,7 @@
 pragma solidity 0.8.17;
 
 library Memory {
-    uint256 internal constant WORD_SIZE = 32;
+    uint256 private constant WORD_SIZE = 32;
 
     // Compares the 'len' bytes starting at address 'addr' in memory with the 'len'
     // bytes starting at 'addr2'.

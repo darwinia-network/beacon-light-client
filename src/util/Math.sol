@@ -27,15 +27,6 @@ library Math {
         else return 2 * get_power_of_two_ceil((x + 1) >> 1);
     }
 
-    function log_2(uint256 x) internal pure returns (uint256 pow) {
-        require(0 < x && x < 0x8000000000000000000000000000000000000000000000000000000000000001, "invalid");
-        uint256 a = 1;
-        while (a < x) {
-            a <<= 1;
-            pow++;
-        }
-    }
-
     /// @dev Add with carry
     /// (carry, d) = a + b + carry.
     function adc(uint256 a, uint256 b, uint8 carry) internal pure returns (uint8, uint256) {

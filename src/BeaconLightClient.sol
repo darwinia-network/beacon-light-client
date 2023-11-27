@@ -76,7 +76,7 @@ import "./BeaconLightClientUpdate.sol";
 
 contract BeaconLightClient is BeaconLightClientUpdate, Bitfield {
     /// @dev Finalized beacon block header
-    BeaconBlockHeader public finalized_header;
+    BeaconBlockHeader private finalized_header;
     /// @dev Finalized execution payload header block_number corresponding to `beacon.body_root` [New in Capella]
     uint256 private finalized_execution_payload_header_block_number;
     /// @dev Finalized execution payload header state_root corresponding to `beacon.body_root` [New in Capella]
