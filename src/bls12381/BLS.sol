@@ -60,4 +60,14 @@ library BLS {
         b[1] = message;
         return BLS12Pairing.pairing(a, b);
     }
+
+    function to_compressed_g1(bytes memory g1) internal pure returns (bytes memory) {
+        Bls12G1 memory p = BLS12G1Affine.deserialize(g1);
+        return BLS12G1Affine.serialize(p);
+    }
+
+    function to_compressed_g2(bytes memory g2) internal pure returns (bytes memory) {
+        Bls12G2 memory p = BLS12G2Affine.deserialize(g2);
+        return BLS12G2Affine.serialize(p);
+    }
 }
