@@ -28,6 +28,10 @@ library BLS12G2Affine {
     bytes1 private constant INFINITY_FLAG = bytes1(0x40);
     bytes1 private constant Y_FLAG = bytes1(0x20);
 
+    function zero() internal pure returns (Bls12G2 memory) {
+        return Bls12G2(BLS12FP2.zero(), BLS12FP2.zero());
+    }
+
     /// @dev Returns `true` if `x` is equal to `y`.
     /// @param a Bls12G2.
     /// @param b Bls12G2.
@@ -126,17 +130,24 @@ library BLS12G2Affine {
     function deserialize(bytes memory g2) internal pure returns (Bls12G2 memory) {
         require(g2.length == 192, "!g2");
         bytes1 byt = g2[0];
-        require(byt & COMPRESION_FLAG == 0, "compressed");
-        require(byt & INFINITY_FLAG == 0, "infinity");
-        require(byt & Y_FLAG == 0, "y_flag");
-
-        g2[0] = byt & 0x1f;
+        bool c_flag = (byt >> 7) & 0x01 == 0x01;
+        bool b_flag = (byt >> 6) & 0x01 == 0x01;
+        bool a_flag = (byt >> 5) & 0x01 == 0x01;
+        if (a_flag && (!c_flag || b_flag)) {
+            revert("!flag");
+        }
+        require(!c_flag, "compressed");
 
         // Convert from array to FP2
         Bls12Fp memory x_imaginary = Bls12Fp(g2.slice_to_uint(0, 16), g2.slice_to_uint(16, 48));
         Bls12Fp memory x_real = Bls12Fp(g2.slice_to_uint(48, 64), g2.slice_to_uint(64, 96));
         Bls12Fp memory y_imaginary = Bls12Fp(g2.slice_to_uint(96, 112), g2.slice_to_uint(112, 144));
         Bls12Fp memory y_real = Bls12Fp(g2.slice_to_uint(144, 160), g2.slice_to_uint(160, 192));
+
+        if (b_flag) {
+            require(x_imaginary.is_zero() && x_real.is_zero() && y_imaginary.is_zero() && y_real.is_zero(), "!zero");
+            return zero();
+        }
 
         // Require elements less than field modulus
         require(x_imaginary.is_valid() && x_real.is_valid() && y_imaginary.is_valid() && y_real.is_valid(), "!pnt");

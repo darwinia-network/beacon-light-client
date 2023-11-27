@@ -21,6 +21,14 @@ library BLS12FP2 {
     bytes private constant Z_PAD =
         hex"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 
+    function zero() internal pure returns (Bls12Fp2 memory) {
+        return Bls12Fp2(BLS12FP.zero(), BLS12FP.zero());
+    }
+
+    function b2() internal pure returns (Bls12Fp2 memory) {
+        return Bls12Fp2(Bls12Fp(0, 4), Bls12Fp(0, 4));
+    }
+
     /// @dev Returns `true` if `x` is equal to `y`.
     /// @param x Bls12Fp2.
     /// @param y Bls12Fp2.
@@ -31,6 +39,10 @@ library BLS12FP2 {
 
     function is_zero(Bls12Fp2 memory x) internal pure returns (bool) {
         return x.c0.is_zero() && x.c1.is_zero();
+    }
+
+    function is_valid(Bls12Fp2 memory self) internal pure returns (bool) {
+        return self.c0.is_valid() && self.c1.is_valid();
     }
 
     /// @dev Hash an arbitrary `msg` to `2` elements from field `Fp2`.
