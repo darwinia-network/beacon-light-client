@@ -29,4 +29,4 @@ line_length=120
 multiline_func_header='all'
 bracket_spacing=true
 wrap_comments=true
-ignore = ['script/Deploy.s.sol']
+ignore = ['script/Deploy.s.sol', 'test/BeaconLightCLient.t.sol']
