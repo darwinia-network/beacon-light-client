@@ -69,7 +69,7 @@ contract Deploy is Common, BeaconLightClientUpdate {
     }
 
     function test_import_finalized_header() public broadcast {
-        BeaconLightClient lightclient = BeaconLightClient(0x970951a12F975E6762482ACA81E57D5A2A4e73F4);
+        BeaconLightClient lightclient = BeaconLightClient(0x867fb76BA206040EA09e73f38EdA307413d4966F);
         FinalizedHeaderUpdate memory header_update = build_header_update();
         lightclient.import_finalized_header(header_update);
     }

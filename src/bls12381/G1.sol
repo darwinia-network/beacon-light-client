@@ -134,8 +134,8 @@ library BLS12G1Affine {
             r[0] = bytes1(0xc0);
         } else {
             // Record y's leftmost bit to the a_flag
-            // y_flag = (g1.y.n * 2) // q
-            bool y_flag = g1.y.add(g1.y).gt(BLS12FP.q());
+            // y_flag = (g1.y * 2) // q
+            bool y_flag = g1.y.add_nomod(g1.y).gt(BLS12FP.q());
             r = g1.x.serialize();
             if (y_flag) {
                 r[0] = r[0] | Y_FLAG;

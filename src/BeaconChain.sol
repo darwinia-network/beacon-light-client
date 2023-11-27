@@ -26,8 +26,8 @@ import "./bls12381/BLS.sol";
 contract BeaconChain is MerkleProof {
     /// @notice bls public key length
     uint64 internal constant BLSPUBLICKEY_LENGTH = 48;
-    /// @notice bls signature length
-    uint64 internal constant BLSSIGNATURE_LENGTH = 96;
+    /// @notice uncompressed bls signature length
+    uint64 internal constant BLSSIGNATURE_LENGTH = 192;
     /// @notice sync committee size
     uint64 internal constant SYNC_COMMITTEE_SIZE = 512;
 
