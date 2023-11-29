@@ -20,8 +20,8 @@ library BLS {
         view
         returns (bool)
     {
-        Bls12G2 memory asig = BLS12G2Affine.deserialize(signature);
         Bls12G1 memory apk = aggregate(pubkeys);
+        Bls12G2 memory asig = BLS12G2Affine.deserialize(signature);
         Bls12G2 memory msg_g2 = BLS12G2Affine.hash_to_curve(message);
         return verify(apk, asig, msg_g2);
     }

@@ -2,6 +2,7 @@
 /docs
 /out
 /cache
+/debug
 /artifacts
 /broadcast
 deployments/*/.deploy

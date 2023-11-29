@@ -21,8 +21,10 @@ library BLS12G2Affine {
 
     /// @dev BLS12_381_G2ADD precompile address.
     uint256 private constant G2_ADD = 0x0f;
+    // uint256 private constant G2_ADD = 0x0d;
     /// @dev BLS12_381_MAP_FP2_TO_G2 precompile address.
     uint256 private constant MAP_FP2_TO_G2 = 0x14;
+    // uint256 private constant MAP_FP2_TO_G2 = 0x12;
 
     bytes1 private constant COMPRESION_FLAG = bytes1(0x80);
     bytes1 private constant INFINITY_FLAG = bytes1(0x40);
@@ -137,17 +139,13 @@ library BLS12G2Affine {
             revert("!flag");
         }
         require(!c_flag, "compressed");
+        require(!b_flag, "infinity");
 
         // Convert from array to FP2
         Bls12Fp memory x_imaginary = Bls12Fp(g2.slice_to_uint(0, 16), g2.slice_to_uint(16, 48));
         Bls12Fp memory x_real = Bls12Fp(g2.slice_to_uint(48, 64), g2.slice_to_uint(64, 96));
         Bls12Fp memory y_imaginary = Bls12Fp(g2.slice_to_uint(96, 112), g2.slice_to_uint(112, 144));
         Bls12Fp memory y_real = Bls12Fp(g2.slice_to_uint(144, 160), g2.slice_to_uint(160, 192));
-
-        if (b_flag) {
-            require(x_imaginary.is_zero() && x_real.is_zero() && y_imaginary.is_zero() && y_real.is_zero(), "!zero");
-            return zero();
-        }
 
         // Require elements less than field modulus
         require(x_imaginary.is_valid() && x_real.is_valid() && y_imaginary.is_valid() && y_real.is_valid(), "!pnt");

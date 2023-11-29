@@ -19,6 +19,7 @@ library BLS12G1Affine {
 
     /// @dev BLS12_377_G1ADD precompile address.
     uint256 private constant G1_ADD = 0x0c;
+    // uint256 private constant G1_ADD = 0x0a;
 
     bytes1 private constant COMPRESION_FLAG = bytes1(0x80);
     bytes1 private constant INFINITY_FLAG = bytes1(0x40);
@@ -29,7 +30,7 @@ library BLS12G1Affine {
     function neg_generator() internal pure returns (Bls12G1 memory) {
         return Bls12G1({
             x: Bls12Fp(
-                0x17f1d3a73197d7942695638c4fa9ac0, 0xc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb
+                0x17f1d3a73197d7942695638c4fa9ac0f, 0xc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb
                 ),
             y: Bls12Fp(
                 0x114d1d6855d545a8aa7d76c8cf2e21f2, 0x67816aef1db507c96655b9d5caac42364e6f38ba0ecb751bad54dcd6b939c2ca
@@ -108,15 +109,12 @@ library BLS12G1Affine {
             revert("!flag");
         }
         require(!c_flag, "compressed");
+        require(!b_flag, "infinity");
 
         // Zero flags
         g1[0] = byt & 0x1f;
         Bls12Fp memory x = Bls12Fp(g1.slice_to_uint(0, 16), g1.slice_to_uint(16, 48));
         Bls12Fp memory y = Bls12Fp(g1.slice_to_uint(48, 64), g1.slice_to_uint(64, 96));
-        if (b_flag) {
-            require(x.is_zero() && y.is_zero(), "!zero");
-            return zero();
-        }
 
         // Require elements less than field modulus
         require(x.is_valid() && y.is_valid(), "!pnt");
