@@ -19,14 +19,15 @@ pragma solidity 0.8.17;
 
 import "./ssz/MerkleProof.sol";
 import "./util/ScaleCodec.sol";
+import "./bls12381/BLS.sol";
 
 /// @title BeaconChain
 /// @notice Beacon chain specification
 contract BeaconChain is MerkleProof {
     /// @notice bls public key length
     uint64 internal constant BLSPUBLICKEY_LENGTH = 48;
-    /// @notice bls signature length
-    uint64 internal constant BLSSIGNATURE_LENGTH = 96;
+    /// @notice uncompressed bls signature length
+    uint64 internal constant BLSSIGNATURE_LENGTH = 192;
     /// @notice sync committee size
     uint64 internal constant SYNC_COMMITTEE_SIZE = 512;
 
@@ -47,8 +48,8 @@ contract BeaconChain is MerkleProof {
     }
 
     /// @notice Sync committee
-    /// @param pubkeys Pubkeys of sync committee
-    /// @param aggregate_pubkey Aggregate pubkey of sync committee
+    /// @param pubkeys Uncompressed pubkeys of sync committee
+    /// @param aggregate_pubkey Compressed aggregate pubkey of sync committee
     struct SyncCommittee {
         bytes[SYNC_COMMITTEE_SIZE] pubkeys;
         bytes aggregate_pubkey;
@@ -167,7 +168,7 @@ contract BeaconChain is MerkleProof {
     function hash_tree_root(SyncCommittee memory sync_committee) internal pure returns (bytes32) {
         bytes32[] memory pubkeys_leaves = new bytes32[](SYNC_COMMITTEE_SIZE);
         for (uint256 i = 0; i < SYNC_COMMITTEE_SIZE; ++i) {
-            bytes memory key = sync_committee.pubkeys[i];
+            bytes memory key = BLS.to_compressed_g1(sync_committee.pubkeys[i]);
             require(key.length == BLSPUBLICKEY_LENGTH, "!key");
             pubkeys_leaves[i] = hash(abi.encodePacked(key, bytes16(0)));
         }

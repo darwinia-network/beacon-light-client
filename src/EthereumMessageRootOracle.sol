@@ -21,10 +21,10 @@ import "./trie/StorageProof.sol";
 import "./BeaconLightClient.sol";
 
 contract EthereumMessageRootOracle is BeaconLightClient {
-    bytes32 messageRoot = 0x27ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d757;
+    bytes32 public messageRoot = 0x27ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d757;
 
-    address constant ORMP = 0x00000000001523057a05d6293C1e5171eE33eE0A;
-    bytes32 constant SLOT = 0x0000000000000000000000000000000000000000000000000000000000000006;
+    address private constant ORMP = 0x00000000001523057a05d6293C1e5171eE33eE0A;
+    bytes32 private constant SLOT = 0x0000000000000000000000000000000000000000000000000000000000000006;
 
     struct Proof {
         bytes[] accountProof;
@@ -34,28 +34,30 @@ contract EthereumMessageRootOracle is BeaconLightClient {
     event FinalizedMessageRootImported(uint256 indexed blockNumber, bytes32 indexed messageRoot);
 
     constructor(
-        address _bls,
         uint64 _slot,
         uint64 _proposer_index,
         bytes32 _parent_root,
         bytes32 _state_root,
         bytes32 _body_root,
+        uint256 _block_number,
+        bytes32 _merkle_root,
         bytes32 _current_sync_committee_hash,
         bytes32 _genesis_validators_root
     )
         BeaconLightClient(
-            _bls,
             _slot,
             _proposer_index,
             _parent_root,
             _state_root,
             _body_root,
+            _block_number,
+            _merkle_root,
             _current_sync_committee_hash,
             _genesis_validators_root
         )
     { }
 
-    function import_message_root(bytes calldata encodedProof) public {
+    function import_message_root(bytes calldata encodedProof) external {
         Proof memory proof = abi.decode(encodedProof, (Proof));
         bytes32 value =
             toBytes32(StorageProof.verify(merkle_root(), ORMP, proof.accountProof, SLOT, proof.storageProof));

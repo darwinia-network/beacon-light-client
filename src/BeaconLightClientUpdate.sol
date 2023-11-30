@@ -24,7 +24,7 @@ import "./BeaconChain.sol";
 contract BeaconLightClientUpdate is BeaconChain {
     /// @notice Sync aggregate
     /// @param sync_committee_bits Sync committee bits
-    /// @param sync_committee_signature Sync committee signature
+    /// @param sync_committee_signature Uncompressed sync committee signature
     struct SyncAggregate {
         bytes32[2] sync_committee_bits;
         bytes sync_committee_signature;

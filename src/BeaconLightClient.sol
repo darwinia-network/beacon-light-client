@@ -70,23 +70,13 @@
 
 pragma solidity 0.8.17;
 
+import "./bls12381/BLS.sol";
 import "./util/Bitfield.sol";
 import "./BeaconLightClientUpdate.sol";
 
-interface IBLS {
-    function fast_aggregate_verify(
-        bytes[] calldata pubkeys,
-        bytes calldata message,
-        bytes calldata signature
-    )
-        external
-        pure
-        returns (bool);
-}
-
 contract BeaconLightClient is BeaconLightClientUpdate, Bitfield {
     /// @dev Finalized beacon block header
-    BeaconBlockHeader public finalized_header;
+    BeaconBlockHeader private finalized_header;
     /// @dev Finalized execution payload header block_number corresponding to `beacon.body_root` [New in Capella]
     uint256 private finalized_execution_payload_header_block_number;
     /// @dev Finalized execution payload header state_root corresponding to `beacon.body_root` [New in Capella]
@@ -95,8 +85,6 @@ contract BeaconLightClient is BeaconLightClientUpdate, Bitfield {
     /// sync_committee_perid => sync_committee_root
     mapping(uint64 => bytes32) public sync_committee_roots;
 
-    /// @dev bls12-381 precompile address(0x0800)
-    address private immutable BLS_PRECOMPILE;
     /// @dev Beacon chain genesis validators root
     bytes32 public immutable GENESIS_VALIDATORS_ROOT;
     // A bellatrix beacon state has 25 fields, with a depth of 5.
@@ -120,17 +108,19 @@ contract BeaconLightClient is BeaconLightClientUpdate, Bitfield {
     event FinalizedExecutionPayloadHeaderImported(uint256 block_number, bytes32 state_root);
 
     constructor(
-        address _bls,
         uint64 _slot,
         uint64 _proposer_index,
         bytes32 _parent_root,
         bytes32 _state_root,
         bytes32 _body_root,
+        uint256 _block_number,
+        bytes32 _merkle_root,
         bytes32 _current_sync_committee_hash,
         bytes32 _genesis_validators_root
     ) {
-        BLS_PRECOMPILE = _bls;
         finalized_header = BeaconBlockHeader(_slot, _proposer_index, _parent_root, _state_root, _body_root);
+        finalized_execution_payload_header_block_number = _block_number;
+        finalized_execution_payload_header_state_root = _merkle_root;
         sync_committee_roots[compute_sync_committee_period(_slot)] = _current_sync_committee_hash;
         GENESIS_VALIDATORS_ROOT = _genesis_validators_root;
     }
@@ -271,7 +261,7 @@ contract BeaconLightClient is BeaconLightClientUpdate, Bitfield {
         bytes memory message = abi.encodePacked(signing_root);
         bytes memory signature = sync_aggregate.sync_committee_signature;
         require(signature.length == BLSSIGNATURE_LENGTH, "!signature");
-        return IBLS(BLS_PRECOMPILE).fast_aggregate_verify(participant_pubkeys, message, signature);
+        return BLS.fast_aggregate_verify(participant_pubkeys, message, signature);
     }
 
     function apply_light_client_update(FinalizedHeaderUpdate calldata update) internal {
