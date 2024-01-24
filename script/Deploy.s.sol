@@ -2,12 +2,10 @@
 pragma solidity 0.8.17;
 
 import { Script, console2 } from "forge-std/Script.sol";
-import { Common } from "create3-deploy/script/Common.s.sol";
-import { ScriptTools } from "create3-deploy/script/ScriptTools.sol";
 import "../src/EthereumMessageRootOracle.sol";
 import "../src/BeaconLightClientUpdate.sol";
 
-contract Deploy is Common, BeaconLightClientUpdate {
+contract Deploy is  BeaconLightClientUpdate {
     address immutable ADDR = 0x0042540F26Af0d83D34197eE1FFE831E4BDb908d;
     bytes32 immutable SALT = 0x13a2cee8eb208966d893c9b726a37f481052ea0e74a5748aaf34798058fbfeac;
 
