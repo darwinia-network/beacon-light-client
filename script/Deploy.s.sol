@@ -5,19 +5,14 @@ import { Script, console2 } from "forge-std/Script.sol";
 import "../src/EthereumMessageRootOracle.sol";
 import "../src/BeaconLightClientUpdate.sol";
 
-contract Deploy is  BeaconLightClientUpdate {
-    address immutable ADDR = 0x0042540F26Af0d83D34197eE1FFE831E4BDb908d;
-    bytes32 immutable SALT = 0x13a2cee8eb208966d893c9b726a37f481052ea0e74a5748aaf34798058fbfeac;
+contract Deploy is Script, BeaconLightClientUpdate {
 
-    function name() public pure override returns (string memory) {
+    function name() public pure returns (string memory) {
         return "Deploy";
     }
 
-    function setUp() public override {
-        // super.setUp();
-    }
-
-    function run() public broadcast {
+    function run() public {
+        vm.broadcast();
         uint64 slot                     = 6242304;
         uint64 proposer_index           = 371683;
         bytes32 parent_root             = 0x16f93626bc460e8449b5b905cf3584aa5ba4800ab39faa00b314bd384859904b;
@@ -38,9 +33,6 @@ contract Deploy is  BeaconLightClientUpdate {
             sync_committee_hash,
             genesis_validators_root
         );
-        // bytes memory byteCode = type(EthereumMessageRootOracle).creationCode;
-        // address addr = _deploy3(SALT, abi.encodePacked(byteCode, args()));
-        // require(addr == ADDR, "!addr");
     }
 
     function args() internal pure returns (bytes memory) {
@@ -66,8 +58,8 @@ contract Deploy is  BeaconLightClientUpdate {
         );
     }
 
-    function test_import_finalized_header() public broadcast {
-        BeaconLightClient lightclient = BeaconLightClient(0x970951a12F975E6762482ACA81E57D5A2A4e73F4);
+    function test_import_finalized_header() public {
+        BeaconLightClient lightclient = BeaconLightClient(0x7bcaE6bCd91C6381640f9E1084B7ED8bD34F7755);
         FinalizedHeaderUpdate memory header_update = build_header_update();
         lightclient.import_finalized_header(header_update);
     }

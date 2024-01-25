@@ -18,7 +18,6 @@
 pragma solidity 0.8.17;
 
 import "forge-std/Test.sol";
-import {Chains} from "create3-deploy/script/Chains.sol";
 import "../src/BeaconLightClient.sol";
 
 contract BeaconLightClientTest is Test {
